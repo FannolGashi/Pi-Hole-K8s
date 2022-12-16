@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: pihole-loadbalancer
+spec:
+ type: LoadBalancer
+ selector:
+    app: pihole
+ ports:
+  - name: "80"
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: "53"
+    port: 53
+    targetPort: 53
+    protocol: UDP
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pihole
+  labels:
+    app: pihole
+spec:
+  volumes:
+  - name: etc-pihole
+    hostPath:
+      # directory location on host
+      path: /run/desktop/mnt/host/c/Users/<userProfile>/Documents/K8s/volumes/pihole
+      # this field is optional
+      type: Directory
+  containers:
+  - name: pihole
+    image: pihole/pihole:latest
+    resources: {}
+    ports:
+    - containerPort: 80
+    volumeMounts: 
+    - mountPath: /etc/pihole
+      name: etc-pihole
